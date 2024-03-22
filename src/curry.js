@@ -1,8 +1,19 @@
 function curry(func) {
-    return function (a) {
-        return function (b, c, d) {
-            return func(a, b, c, d);
-        };
-    };
+    let providedArguments = [];
+    const numberOfRequiredArguments = func.length;
+
+    function curriedFunction(...args) {
+        providedArguments = [...providedArguments, ...args];
+        const currentNumberOfArguments = providedArguments.length;
+
+        const allArgumentsProvided =
+            currentNumberOfArguments == numberOfRequiredArguments;
+
+        if (allArgumentsProvided) {
+            return func(...providedArguments);
+        }
+        return curriedFunction;
+    }
+    return curriedFunction;
 }
 export default curry;
