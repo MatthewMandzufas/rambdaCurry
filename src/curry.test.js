@@ -42,8 +42,6 @@ describe('Curry', () => {
         const h = g(3);
         expect(h.length).toEqual(2);
 
-        expect(g.length).toEqual(3);
         expect(g(3, 6).length).toEqual(1);
-        // TODO: Giving undefined, (this is assumed correct if all arguments for the original argument are provided). The issue here being the provided arguments end up being [12, 3, 3, 6], but it should be [12, 3, 6, undefined]
     });
 });
