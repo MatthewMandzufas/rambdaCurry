@@ -44,4 +44,13 @@ describe('Curry', () => {
 
         expect(g(3, 6).length).toEqual(1);
     });
+    it('preserves context', () => {
+        const ctx = { x: 10 };
+        const mockedFunctionToCurry = jest.fn(function (a, b) {
+            return a + b * this.x;
+        });
+        const f = curry(mockedFunctionToCurry);
+        expect(f.call(ctx, 2, 4)).toEqual(42);
+        expect(f.call(ctx, 2).call(ctx, 4)).toEqual(42);
+    });
 });

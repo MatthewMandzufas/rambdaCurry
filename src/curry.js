@@ -17,10 +17,8 @@ function functionOfArity(func, arity, providedArguments) {
         };
     }
 }
-
 function curry(func) {
     const numberOfRequiredArguments = func.length;
-
     function curriedFunction(providedArguments = [], ...args) {
         providedArguments = [...providedArguments, ...args];
         providedArguments = providedArguments.filter((argument) => {
