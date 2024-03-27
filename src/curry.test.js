@@ -1,4 +1,6 @@
 import curry from './curry';
+import _ from './_';
+
 describe('Curry', () => {
     it('curries a single value', () => {
         const mockedFunctionToCurry = jest.fn(function (a, b, c, d) {
@@ -51,13 +53,47 @@ describe('Curry', () => {
         expect(g(3, 6).length).toEqual(1);
     });
     it('preserves context', () => {
-        const ctx = { x: 10 };
+        const context = { x: 10 };
         const f = function (a, b) {
             return a + b * this.x;
         };
         const g = curry(f);
 
-        expect(g.call(ctx, 2, 4)).toEqual(42);
-        expect(g.call(ctx, 2).call(ctx, 4)).toEqual(42);
+        expect(g.call(context, 2, 4)).toEqual(42);
+        expect(g.call(context, 2).call(context, 4)).toEqual(42);
+    });
+    it('supports _ placeholder', () => {
+        const f = function (a, b, c) {
+            return [a, b, c];
+        };
+        const g = curry(f);
+
+        function eq(actualValue, expectedValue) {
+            return expect(actualValue).toEqual(expectedValue);
+        }
+
+        eq(g(1)(2)(3), [1, 2, 3]);
+        eq(g(1)(2, 3), [1, 2, 3]);
+        eq(g(1, 2)(3), [1, 2, 3]);
+        eq(g(1, 2, 3), [1, 2, 3]);
+
+        eq(g(_, 2, 3)(1), [1, 2, 3]);
+        eq(g(1, _, 3)(2), [1, 2, 3]);
+        eq(g(1, 2, _)(3), [1, 2, 3]);
+
+        eq(g(1, _, _)(2)(3), [1, 2, 3]);
+        eq(g(_, 2, _)(1)(3), [1, 2, 3]);
+        eq(g(_, _, 3)(1)(2), [1, 2, 3]);
+
+        eq(g(1, _, _)(2, 3), [1, 2, 3]);
+        eq(g(_, 2, _)(1, 3), [1, 2, 3]);
+        eq(g(_, _, 3)(1, 2), [1, 2, 3]);
+
+        eq(g(1, _, _)(_, 3)(2), [1, 2, 3]);
+        eq(g(_, 2, _)(_, 3)(1), [1, 2, 3]);
+        eq(g(_, _, 3)(_, 2)(1), [1, 2, 3]);
+
+        eq(g(_, _, _)(_, _)(_)(1, 2, 3), [1, 2, 3]);
+        eq(g(_, _, _)(1, _, _)(_, _)(2, _)(_)(3), [1, 2, 3]);
     });
 });
