@@ -29,14 +29,14 @@ function curry(func) {
 
         if (isRemainingArguments) {
             return functionOfArity(
-                (...args) => curriedFunction(...passedInArguments, ...args),
+                (...args) =>
+                    curriedFunction.call(this, ...passedInArguments, ...args),
                 arityOfCurriedFunc - passedInArguments.length
             );
         } else {
-            return func(...passedInArguments);
+            return func.call(this, ...passedInArguments);
         }
     }
-    // return curriedFunction;
-    return functionOfArity(curriedFunction, arityOfCurriedFunc);
+    return functionOfArity.call(this, curriedFunction, arityOfCurriedFunc);
 }
 export default curry;
