@@ -1,41 +1,42 @@
-function functionOfArity(func, arity, providedArguments) {
-    if (arity == 4) {
-        return (a, b, c, d) => {
-            return func(providedArguments, a, b, c, d);
-        };
-    } else if (arity == 3) {
-        return (a, b, c) => {
-            return func(providedArguments, a, b, c);
-        };
-    } else if (arity == 2) {
-        return (a, b) => {
-            return func(providedArguments, a, b);
-        };
-    } else if (arity == 1) {
-        return (a) => {
-            return func(providedArguments, a);
-        };
+function functionOfArity(func, arity) {
+    switch (arity) {
+        case 4:
+            return function (a, b, c, d) {
+                return func.apply(this, arguments);
+            };
+        case 3:
+            return function (a, b, c) {
+                return func.apply(this, arguments);
+            };
+        case 2:
+            return function (a, b) {
+                return func.apply(this, arguments);
+            };
+        case 1:
+            return function (a) {
+                return func.apply(this, arguments);
+            };
+        default:
+            break;
     }
 }
 function curry(func) {
-    const numberOfRequiredArguments = func.length;
-    function curriedFunction(providedArguments = [], ...args) {
-        providedArguments = [...providedArguments, ...args];
-        providedArguments = providedArguments.filter((argument) => {
-            return argument !== undefined;
-        });
-        const currentNumberOfArguments = providedArguments.length;
-        const remainingArguments =
-            numberOfRequiredArguments - currentNumberOfArguments;
-        if (remainingArguments == 0) {
-            return func(...providedArguments);
+    const arityOfCurriedFunc = func.length;
+
+    function curriedFunction(...passedInArguments) {
+        const isRemainingArguments =
+            arityOfCurriedFunc - passedInArguments.length > 0;
+
+        if (isRemainingArguments) {
+            return functionOfArity(
+                (...args) => curriedFunction(...passedInArguments, ...args),
+                arityOfCurriedFunc - passedInArguments.length
+            );
+        } else {
+            return func(...passedInArguments);
         }
-        return functionOfArity(
-            curriedFunction,
-            remainingArguments,
-            providedArguments
-        );
     }
-    return functionOfArity(curriedFunction, numberOfRequiredArguments);
+    // return curriedFunction;
+    return functionOfArity(curriedFunction, arityOfCurriedFunc);
 }
 export default curry;
