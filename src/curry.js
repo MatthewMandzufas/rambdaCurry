@@ -1,3 +1,5 @@
+import _ from './_';
+
 function functionOfArity(func, arity) {
     switch (arity) {
         case 4:
@@ -20,19 +22,50 @@ function functionOfArity(func, arity) {
             break;
     }
 }
+
+function replacePlaceholders(passedInArguments, args) {
+    const currentArguments = [...passedInArguments];
+    const argumentsToAdd = [...args];
+    // TODO: Side effects?
+
+    const filteredArray = currentArguments.map((arg) =>
+        arg === _
+            ? argumentsToAdd.length == 0
+                ? arg
+                : argumentsToAdd.shift()
+            : arg
+    );
+
+    argumentsToAdd.forEach((arg) => {
+        filteredArray.push(arg);
+    });
+
+    return filteredArray;
+}
+
 function curry(func) {
     const arityOfCurriedFunc = func.length;
 
     function curriedFunction(...passedInArguments) {
+        let numberOfProvidedArgumentsExcludingPlaceholders = 0;
+        for (let passedInArgument of passedInArguments) {
+            if (passedInArgument !== _) {
+                numberOfProvidedArgumentsExcludingPlaceholders++;
+            }
+        }
+
         const isRemainingArguments =
-            arityOfCurriedFunc - passedInArguments.length > 0;
+            arityOfCurriedFunc -
+                numberOfProvidedArgumentsExcludingPlaceholders >
+            0;
 
         if (isRemainingArguments) {
-            return functionOfArity(
-                (...args) =>
-                    curriedFunction.call(this, ...passedInArguments, ...args),
-                arityOfCurriedFunc - passedInArguments.length
-            );
+            return functionOfArity((...args) => {
+                return curriedFunction.call(
+                    this,
+                    ...replacePlaceholders(passedInArguments, args)
+                );
+            }, arityOfCurriedFunc - numberOfProvidedArgumentsExcludingPlaceholders);
         } else {
             return func.call(this, ...passedInArguments);
         }
