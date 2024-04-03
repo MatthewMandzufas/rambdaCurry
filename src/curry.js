@@ -34,7 +34,7 @@ function curry(func) {
 
         const remainingArity = passedInArguments.reduce(
             (accumulator, currentValue) =>
-                currentValue == _ ? accumulator : accumulator - 1,
+                currentValue === _ ? accumulator : accumulator - 1,
             workingArity
         );
 
