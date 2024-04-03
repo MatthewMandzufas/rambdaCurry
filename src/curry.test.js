@@ -1,5 +1,6 @@
 import curry from './curry';
 import _ from './_';
+const fc = require('fast-check');
 
 describe('Curry', () => {
     it('curries a single value', () => {
@@ -167,5 +168,30 @@ describe('Curry', () => {
         );
         eq(g(1), [1]);
         eq(g(), []);
+    });
+    describe('curry properties', () => {
+        it('curries multiple values', () => {
+            fc.assert(
+                fc.property(
+                    fc.func(fc.anything()),
+                    fc.anything(),
+                    fc.anything(),
+                    fc.anything(),
+                    fc.anything(),
+                    function (f, a, b, c, d) {
+                        const f4 = function (a, b, c, d) {
+                            return f(a, b, c, d);
+                        };
+                        const g = curry(f4);
+
+                        expect(g(a, b, c, d)).toEqual(f4(a, b, c, d));
+                        expect(g(a)(b)(c)(d)).toEqual(f4(a, b, c, d));
+                        expect(g(a)(b, c, d)).toEqual(f4(a, b, c, d));
+                        expect(g(a, b)(c, d)).toEqual(f4(a, b, c, d));
+                        expect(g(a, b, c)(d)).toEqual(f4(a, b, c, d));
+                    }
+                )
+            );
+        });
     });
 });

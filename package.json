@@ -22,6 +22,7 @@
         "prettier": "3.2.5"
     },
     "dependencies": {
+        "fast-check": "^3.17.1",
         "inquirer": "^9.2.15"
     }
 }
