@@ -24,23 +24,18 @@ function functionOfArity(func, arity) {
 }
 
 function replacePlaceholders(passedInArguments, args) {
-    const currentArguments = [...passedInArguments];
-    const argumentsToAdd = [...args];
-    // TODO: Side effects?
-
-    const filteredArray = currentArguments.map((arg) =>
-        arg === _
-            ? argumentsToAdd.length == 0
-                ? arg
-                : argumentsToAdd.shift()
-            : arg
+    const { resultArgs, argsToMerge } = passedInArguments.reduce(
+        function ({ resultArgs, argsToMerge }, currentValue) {
+            if (currentValue === _ && argsToMerge.length > 0) {
+                resultArgs.push(argsToMerge.shift());
+            } else {
+                resultArgs.push(currentValue);
+            }
+            return { resultArgs, argsToMerge };
+        },
+        { resultArgs: [], argsToMerge: args }
     );
-
-    argumentsToAdd.forEach((arg) => {
-        filteredArray.push(arg);
-    });
-
-    return filteredArray;
+    return [...resultArgs, ...argsToMerge];
 }
 
 function curry(func) {
@@ -60,10 +55,10 @@ function curry(func) {
             0;
 
         if (isRemainingArguments) {
-            return functionOfArity((...args) => {
+            return functionOfArity((...newArgs) => {
                 return curriedFunction.call(
                     this,
-                    ...replacePlaceholders(passedInArguments, args)
+                    ...replacePlaceholders(passedInArguments, newArgs)
                 );
             }, arityOfCurriedFunc - numberOfProvidedArgumentsExcludingPlaceholders);
         } else {
