@@ -42,25 +42,24 @@ function curry(func) {
     const arityOfCurriedFunc = func.length;
 
     function curriedFunction(...passedInArguments) {
-        let numberOfProvidedArgumentsExcludingPlaceholders = 0;
-        for (let passedInArgument of passedInArguments) {
-            if (passedInArgument !== _) {
-                numberOfProvidedArgumentsExcludingPlaceholders++;
-            }
-        }
+        const workingArity =
+            passedInArguments.length > arityOfCurriedFunc
+                ? passedInArguments.length
+                : arityOfCurriedFunc;
 
-        const isRemainingArguments =
-            arityOfCurriedFunc -
-                numberOfProvidedArgumentsExcludingPlaceholders >
-            0;
+        const remainingArity = passedInArguments.reduce(
+            (accumulator, currentValue) =>
+                currentValue == _ ? accumulator : accumulator - 1,
+            workingArity
+        );
 
-        if (isRemainingArguments) {
+        if (remainingArity > 0) {
             return functionOfArity((...newArgs) => {
                 return curriedFunction.call(
                     this,
                     ...replacePlaceholders(passedInArguments, newArgs)
                 );
-            }, arityOfCurriedFunc - numberOfProvidedArgumentsExcludingPlaceholders);
+            }, remainingArity);
         } else {
             return func.call(this, ...passedInArguments);
         }
