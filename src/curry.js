@@ -1,26 +1,11 @@
 import _ from './_';
 
 function functionOfArity(func, arity) {
-    switch (arity) {
-        case 4:
-            return function (a, b, c, d) {
-                return func.apply(this, arguments);
-            };
-        case 3:
-            return function (a, b, c) {
-                return func.apply(this, arguments);
-            };
-        case 2:
-            return function (a, b) {
-                return func.apply(this, arguments);
-            };
-        case 1:
-            return function (a) {
-                return func.apply(this, arguments);
-            };
-        default:
-            break;
-    }
+    Object.defineProperty(func, 'length', {
+        value: arity,
+        writable: false,
+    });
+    return func;
 }
 
 function replacePlaceholders(passedInArguments, args) {
@@ -53,7 +38,11 @@ function curry(func) {
             workingArity
         );
 
-        if (remainingArity > 0) {
+        const containsPlaceholders = passedInArguments.find(
+            (currentArgument) => currentArgument === _
+        );
+
+        if (remainingArity > 0 || containsPlaceholders) {
             return functionOfArity((...newArgs) => {
                 return curriedFunction.call(
                     this,
